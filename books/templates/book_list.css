@@ -1,0 +1,15 @@
+/* .container{
+    display: grid;
+    background-color: aqua;
+}
+
+.box{
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+}
+
+.book-img{
+    grid-row:1/5 ;
+} */
