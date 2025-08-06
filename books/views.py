@@ -13,8 +13,8 @@ def book_list(request):
     return render(request,'book_list.html',{'books':books})
 
 @login_required
-def book_details(request):
-    book=Books.objects.all()
+def book_details(request,id):
+    book=Books.objects.get(id=id)
     reviews=book.reviews.all()
     avg_rating=book.average_rating()
     return render(request,'book_detail.html',{'book':book,'reviews':reviews,'avg_rating':avg_rating})
@@ -35,12 +35,12 @@ def add_books(request):
             return render(request,'add_book.html',{'form':form})
 
 @login_required
-def edit_book(request):
+def edit_book(request,id):
     book=Books.objects.get(id=id)
     if request.user.user_type != 'admin':
         return HttpResponseForbidden('ONLY ADMIN CAN EDIT THIS BOOKS')
 
-    if request.method=="POST":
+    if request.method=="POST": 
         form=BookForm(request.POST,request.FILES,instance=book)
         if form.is_valid():
             form.save()
@@ -51,7 +51,7 @@ def edit_book(request):
 
     
 @login_required
-def delete_book(request):
+def delete_book(request,id):
     book=Books.objects.get(id=id)
     if request.user.user_type != 'admin':
         return HttpResponseForbidden('ONLY ADMIN CAN DELETE THIS BOOKS')
@@ -61,15 +61,46 @@ def delete_book(request):
         return redirect("book_list/")
 
 
+@login_required
+def add_review(request,id):
+    book=Books.objects.get(id=id)
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save()
+            review.user = request.user
+            review.book = book
+            review.save()
+            return redirect('book_detail', id=id)
+    else:
+        form = ReviewForm()
+    return render(request, 'review_page.html', {'form': form, 'book': book})
 
-def add_review(request):
-    pass
+@login_required
+def edit_review(request,id):
+    review=Review.objects.get(id=id)
+    if request.user != review.user:
+        return HttpResponseForbidden("You can only edit your own reviews.")
+    if request.method == 'POST':
+        form = ReviewForm(request.POST, instance=review)
+        if form.is_valid():
+            form.save()
+            return redirect('book_detail', id=review.id)
+    else:
+        form = ReviewForm(instance=review)
+    return render(request, 'edit_review.html', {'form': form, 'review': review})
 
-def edit_review(request):
-    pass
 
-def delete_review(request):
-    pass
+@login_required
+def delete_review(request,id):
+    review=Review.objects.get(id=id)
+    if request.user != review.user and request.user.user_type != 'admin':
+        return HttpResponseForbidden("You are not allowed to delete this review.")
+    id = review.id
+    if request.method == 'POST':
+        review.delete()
+        return redirect('book_detail', id=id)
+    
 
 
 def login_page(request):
