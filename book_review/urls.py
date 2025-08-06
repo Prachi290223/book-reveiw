@@ -31,7 +31,7 @@ urlpatterns = [
     path("logout/",logout_page,name="logout_page"),
     path("register/",register,name="register"),
 
-    path("add_books/",add_books,name="add_books"),
+    path("add_book/",add_book,name="add_book"),
     path("edit_book/<id>",edit_book,name="edit_book"),
     path("delete_book/<id>",delete_book,name="delete_book"),
   
