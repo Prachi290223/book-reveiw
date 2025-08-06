@@ -17,6 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from books.views import *
+from django.conf.urls.static import static
+from django.conf import settings
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,4 +31,19 @@ urlpatterns = [
     path("logout/",logout_page,name="logout_page"),
     path("register/",register,name="register"),
 
+    path("add_books/",add_books,name="add_books"),
+    path("edit_book/<id>",edit_book,name="edit_book"),
+    path("delete_book/<id>",delete_book,name="delete_book"),
+  
+    path("add_review/<id>",add_review,name="add_review"),
+    path("edit_review/<id>",edit_review,name="edit_review"),
+    path("delete_review/<id>",delete_review,name="delete_review"),
+
+
 ]
+
+
+if settings.DEBUG:
+    urlpatterns+=static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+
+urlpatterns+=staticfiles_urlpatterns()
