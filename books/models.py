@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models import Avg
 
 
 # Create your models here.
@@ -8,7 +9,7 @@ class User(AbstractUser):
 
     USER_TYPE=(
         ('admin','Admin'),
-        ('normal','Normal user'),
+        ('user','User'),
     )
     user_type=models.CharField(max_length=100,choices=USER_TYPE,default='normal')
     
@@ -24,17 +25,17 @@ class Books(models.Model):
     book_image=models.ImageField(upload_to="book_image/",blank=True, null=True)
     
     def average_rating(self):
-        return 0
+        return self.reviews.aggregation(avg=Avg("rating"))['avg']
         
     def __str__(self):
         return self.title
    
 
 class Review(models.Model):
-    book=models.ForeignKey(Books,on_delete=models.CASCADE,related_name='reveiws')
-    user=models.ForeignKey(User,on_delete=models.CASCADE,related_name='reveiws')
+    book=models.ForeignKey(Books,on_delete=models.CASCADE,related_name='reviews')
+    user=models.ForeignKey(User,on_delete=models.CASCADE,related_name='reviews')
     comment=models.TextField()
     rating=models.IntegerField()
 
     def __str__(self):
-        return f"{self.user.username}{self.book.title}"
+        return f"{self.user.username}{self.book.title} ({self.rating})"
