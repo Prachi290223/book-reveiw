@@ -1,8 +1,10 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from .models import *
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import HttpResponseForbidden
+from .forms import *
 
 # Create your views here.
 
@@ -17,16 +19,48 @@ def book_details(request):
     avg_rating=book.average_rating()
     return render(request,'book_detail.html',{'book':book,'reviews':reviews,'avg_rating':avg_rating})
 
-
+@login_required
 def add_books(request):
-    pass
+    if request.user.user_type != 'admin':
+        return HttpResponseForbidden('ONLY ADMIN CAN ADD BOOKS')
     
+    if request.method=="POST":
+        form=BookForm(request.POST,request.FILES)
+        if form.is_valid():
+            books=form.save()
+            books.author=request.user
+            return redirect("/")
+        else:
+            form=BookForm()
+            return render(request,'add_book.html',{'form':form})
 
+@login_required
 def edit_book(request):
-    pass
+    book=Books.objects.get(id=id)
+    if request.user.user_type != 'admin':
+        return HttpResponseForbidden('ONLY ADMIN CAN EDIT THIS BOOKS')
 
+    if request.method=="POST":
+        form=BookForm(request.POST,request.FILES,instance=book)
+        if form.is_valid():
+            form.save()
+            return redirect("book_detail/")
+        else:
+            form=BookForm(instance=book)
+            return render(request,'edit_book.html',{'form':form,'book':book})
+
+    
+@login_required
 def delete_book(request):
-    pass
+    book=Books.objects.get(id=id)
+    if request.user.user_type != 'admin':
+        return HttpResponseForbidden('ONLY ADMIN CAN DELETE THIS BOOKS')
+
+    if request.method=="POST":
+        book.delete()
+        return redirect("book_list/")
+
+
 
 def add_review(request):
     pass
