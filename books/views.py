@@ -20,7 +20,7 @@ def book_details(request,id):
     return render(request,'book_detail.html',{'book':book,'reviews':reviews,'avg_rating':avg_rating})
 
 @login_required
-def add_books(request):
+def add_book(request):
     if request.user.user_type != 'admin':
         return HttpResponseForbidden('ONLY ADMIN CAN ADD BOOKS')
     
@@ -30,9 +30,10 @@ def add_books(request):
             books=form.save()
             books.author=request.user
             return redirect("/")
-        else:
-            form=BookForm()
-            return render(request,'add_book.html',{'form':form})
+    else:
+        form=BookForm()
+
+    return render(request,'add_book.html',context={'form':form})
 
 @login_required
 def edit_book(request,id):
@@ -45,9 +46,10 @@ def edit_book(request,id):
         if form.is_valid():
             form.save()
             return redirect("book_detail/")
-        else:
-            form=BookForm(instance=book)
-            return render(request,'edit_book.html',{'form':form,'book':book})
+    else:
+        form=BookForm(instance=book)
+
+    return render(request,'edit_book.html',{'form':form,'book':book})
 
     
 @login_required
@@ -123,7 +125,7 @@ def login_page(request):
         
         else:
             login(request,user)
-            return redirect('booklist/')
+            return redirect('/')
 
     return render(request,'login.html')
 
