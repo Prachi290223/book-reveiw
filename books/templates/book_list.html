@@ -1,91 +1,103 @@
 {% extends "base.html" %}
-{% block content %}
+{% block start %}
 <style>
     body {
-        font-family: Arial, sans-serif;
-        background-color: #f9f9f9;
-        margin: 0;
+        background-color: #f7f5f2;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .book-list-container {
+        max-width: 1000px;
+        margin: 40px auto;
         padding: 20px;
     }
 
-    h2 {
-        text-align: center;
-        margin-bottom: 30px;
-    }
-
-    .top-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-    }
-
-    .book-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 20px;
-    }
-
     .book-card {
-        background: #fff;
+        display: flex;
+        background-color: #ffffff;
         border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        margin-bottom: 25px;
         overflow: hidden;
-        text-align: center;
-        padding: 15px;
         transition: transform 0.2s;
     }
 
     .book-card:hover {
-        transform: translateY(-5px);
+        transform: scale(1.01);
     }
 
-    .book-card img {
-        max-width: 100%;
-        height: 250px;
+    .book-image {
+        flex: 0 0 200px;
+        height: 100%;
+    }
+
+    .book-image img {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
-        border-radius: 8px;
     }
 
-    .book-card h3 {
-        margin: 10px 0 5px;
+    .book-detail {
+        flex: 1;
+        padding: 20px;
+    }
+
+    .book-detail h2 {
+        margin-top: 0;
+        font-size: 24px;
+        color: #333;
+    }
+
+    .book-detail .author {
+        font-size: 16px;
+        color: #888;
+        margin: 8px 0;
+    }
+
+    .book-detail .description {
+        font-size: 15px;
+        color: #444;
+        margin-bottom: 12px;
+    }
+
+    .book-detail .rating {
         font-size: 18px;
-    }
-
-    .book-card p {
-        margin: 5px 0;
-        font-size: 14px;
-        color: #555;
-    }
-
-    .star {
-        color: gold;
-    }
-
-    .btn {
-        display: inline-block;
-        background-color: #007bff;
-        color: white;
-        padding: 8px 16px;
-        margin-top: 10px;
-        border-radius: 5px;
-        text-decoration: none;
-        transition: background-color 0.3s;
-    }
-
-    .btn:hover {
-        background-color: #0056b3;
+        color: goldenrod;
+        font-weight: bold;
     }
 </style>
-<div class="top-bar">
-    <div>
-        <p>Welcome, <strong>{{ user.username }}</strong> ({{ user.user_type }})</p>
+<div class="book-list-container">
+    <h1 style="text-align:center;">Book Collection</h1>
+    {% for book in books %}
+    <div class="book-card">
+        <div class="book-image">
+            {% if book.book_image %}
+                <img src="{{ book.book_image.url }}" alt="{{ book.title }}">
+            {% else %}
+                <img src="https://via.placeholder.com/200x300?text=No+Image" alt="No Image">
+            {% endif %}
+        </div>
+        <div class="book-detail">
+            
+            <a href ="{% url 'book_detail' book.id %}" > 
+             <h2>{{ book.title }}</h2>
+            </a>
+            <p class="author"><strong>By:</strong> {{ book.author }}</p>
+            <p class="genre"><strong>Genre:</strong>{{ book.genre }}</p>
+            <p class="description"><strong>Description:</strong>{{ book.book_description }}</p>
+            <p class="rating"> {{ book.average_rating|floatformat:1 }} / 5</p>
+        
+            {% if request.user == book.author and request.user.user_type == 'admin' %}
+                <div class="actions">
+                    <a class="btn btn-outline-secondary" href="{% url 'edit_book' book.id %}">Edit</a>
+                    <a class="btn btn-outline-danger" href="{% url 'delete_book' book.id %}" class="delete">Delete</a>
+                </div>
+            {% endif %}
+        </div>
     </div>
-    <div>
-        {% if user.user_type == 'admin' %}
-        <a class="btn" href="{% url 'add_book' %}">:heavy_plus_symbol: Add Book</a>
-        {% endif %}
-        <a class="btn" href="{% url 'logout' %}">Logout</a>
-    </div>
+    {% empty %}
+    <p style="text-align:center;">No books available yet.</p>
+    {% endfor %}
+</div>
 
 {% endblock %} 
