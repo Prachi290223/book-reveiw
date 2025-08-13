@@ -55,7 +55,7 @@ def delete_book(request,id):
 
     if request.method=="POST":
         book.delete()
-        return redirect("book_list/")
+        return redirect("/book_list/")
     
     return render(request,'confirm_delete_book.html',{'book':book})
 
@@ -139,19 +139,13 @@ def add_review(request, book_id):
         rating = int(request.POST.get('rating'))
         comment = request.POST.get('comment')
 
-        # Prevent multiple reviews by same user
-        existing_review = Review.objects.filter(book=book, user=request.user).first()
-        if existing_review:
-            messages.warning(request, "You have already reviewed this book.")
-            return redirect('book_detail', book_id=book.id)
-
         Review.objects.create(
             book=book,
             user=request.user,
             rating=rating,
             comment=comment
         )
-        messages.success(request, "Review added successfully.")
+        
         return redirect('book_detail', book_id=book.id)
 
 @login_required
@@ -165,7 +159,7 @@ def edit_review(request, review_id):
         review.rating = int(request.POST.get('rating'))
         review.comment = request.POST.get('comment')
         review.save()
-        messages.success(request, "Review updated successfully.")
+        
         return redirect('book_detail', book_id=review.book.id)
 
     return render(request, 'edit_review.html', {'review': review})
@@ -179,7 +173,7 @@ def delete_review(request, review_id) :
 
     book_id = review.book.id
     review.delete()
-    messages.success(request, "Review deleted.")
+
     return redirect('book_detail', book_id=book_id)
 
 
