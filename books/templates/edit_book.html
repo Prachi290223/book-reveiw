@@ -1,11 +1,13 @@
 {% extends "base.html" %}
-{% block content %}
+{% block start %}
 
 <h2>Edit  Book</h2>
-<form action="" method="post" enctype="multipart/form-data">
+<form action="" method="post" enctype="multipart/form-data" style="max-width: 600px; margin: auto;">
     {% csrf_token %}
     {{form.as_p}}
-    <button type="submit">Update</button>
+    <!-- <button type="submit" class="btn btn-primary">Update Book</button> -->
+    <a class="btn btn-success" href="{% url 'book_detail' book.id %}" class="btn btn-secondary">Update Bookl</a>
+    <a class="btn btn-success" href="{% url 'book_list' %}" class="btn btn-secondary">Cancel</a>
 </form>
 
 {% endblock %}

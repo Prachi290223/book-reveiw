@@ -25,19 +25,20 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('book/', book_details, name='book_details'),
-    path('',book_list, name='book_list'),
+    path('book_detail/<book_id>', book_detail, name='book_detail'),
+    path('book_list/',book_list, name='book_list'),
     path("login/",login_page,name="login_page"),
     path("logout/",logout_page,name="logout_page"),
     path("register/",register,name="register"),
+    path("",home_page,name="home_page"),
 
     path("add_book/",add_book,name="add_book"),
     path("edit_book/<id>",edit_book,name="edit_book"),
     path("delete_book/<id>",delete_book,name="delete_book"),
   
-    path("add_review/<id>",add_review,name="add_review"),
-    path("edit_review/<id>",edit_review,name="edit_review"),
-    path("delete_review/<id>",delete_review,name="delete_review"),
+    path("add_review/<book_id>",add_review,name="add_review"),
+    path("edit_review/<review_id>",edit_review,name="edit_review"),
+    path("delete_review/<review_id>",delete_review,name="delete_review"),
 
 
 ]

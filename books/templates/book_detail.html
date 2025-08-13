@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block start %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-4">
+            <img src="{{ book.book_image.url }}" class="img-fluid" alt="Book Image">
+        </div>
+        <div class="col-md-8">
+            <h2>{{ book.title }}</h2>
+            <p><strong>Author:</strong> {{ book.author }}</p>
+            <p><strong>Genre:</strong> {{ book.genre }}</p>
+            <p>{{ book.book_description }}</p>
+            <p><strong>Average Rating:</strong> {{ book.average_rating|default:"No ratings yet" }}</p>
+        </div>
+    </div>
+
+    <hr>
+
+    
+    <div class="review-summary my-4">
+        <h3>Reviews</h3>
+        <p><strong>Average Rating:</strong> {{ book.average_rating|floatformat:1 }}/5</p>
+        <p><strong>Total Reviews:</strong> {{ book.reviews.count }}</p>
+        
+    </div>
+
+    
+    {% if user.is_authenticated %}
+    <div class="add-review mb-4">
+        <h4>Leave a Review</h4>
+        <form method="POST" action="{% url 'add_review' book.id %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="rating">Rating:</label>
+                <select name="rating" id="rating" class="form-control" required>
+                    <option value="">Select Rating</option>
+                    {% for i in "12345" %}
+                        <option value="{{ i }}">{{ i }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="comment">Comment:</label>
+                <textarea name="comment" id="comment" rows="3" class="form-control" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">Submit Review</button>
+        </form>
+    </div>
+    {% else %}
+        <p><a href="{% url 'login_page' %}">Login</a> to add a review.</p>
+    {% endif %}
+
+    <hr>
+
+    
+    <div class="review-list">
+        {% for review in book.reviews.all %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">
+                    {% for i in "12345"|slice:":review.rating" %}
+                        <span class="text-warning">&#9733;</span>
+                    {% endfor %}
+                    {% for i in "12345"|slice:"review.rating:" %}
+                        <span class="text-secondary">&#9733;</span>
+                    {% endfor %}
+                    - {{ review.user.username }} on {{ review.created_at|date:"M d, Y" }}
+                </h5>
+                <p class="card-text">{{ review.comment }}</p>
+
+                {% if user == review.user %}
+                <a href="{% url 'edit_review' review.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                <a href="{% url 'delete_review' review.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <p>No reviews yet. Be the first to leave one!</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
